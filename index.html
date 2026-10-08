@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Rent Receipt Generator</title>
+    <!-- Google Fonts & html2canvas library for high-quality image save -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+:root{
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --bg:#f5f7fb;
+    --card:#ffffff;
+    --text:#111827;
+    --muted:#64748b;
+    --line:#e8edf3;
+    --soft:#f8fafc;
+    --blue-soft:#eff6ff;
+    --radius:20px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Noto Sans Bengali','Inter',sans-serif}
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 10% 0%,rgba(37,99,235,.06),transparent 28%),
+        radial-gradient(circle at 90% 100%,rgba(37,99,235,.04),transparent 30%),
+        var(--bg);
+    color:var(--text);
+    padding:28px 16px;
+}
+
+.container{
+    width:100%;
+    max-width:1080px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:360px minmax(0,1fr);
+    gap:24px;
+    align-items:start;
+}
+
+
+/* Context Header */
+.panel-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+}
+.panel-icon{
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    border-radius:12px;
+    background:#eff6ff;
+    color:#2563eb;
+    font-size:21px;
+    font-weight:700;
+}
+.panel-kicker{
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:1.4px;
+    color:#2563eb;
+    margin-bottom:2px;
+}
+.panel-header h1{
+    font-size:16px;
+    line-height:1.25;
+    font-weight:800;
+    color:#0f172a;
+}
+.copyright{
+    text-align:center;
+    font-size:10px;
+    color:#94a3b8;
+    margin-top:8px;
+    letter-spacing:.1px;
+}
+
+/* Input panel */
+.form-card{
+    background:rgba(255,255,255,.92);
+    padding:24px;
+    border:1px solid rgba(226,232,240,.9);
+    border-radius:var(--radius);
+    box-shadow:0 12px 35px rgba(15,23,42,.06);
+    position:sticky;
+    top:20px;
+}
+
+.form-card h2{
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:22px;
+    padding-bottom:15px;
+    border-bottom:1px solid var(--line);
+    letter-spacing:-.2px;
+}
+
+.input-group{margin-bottom:15px}
+.input-group label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--muted);
+    margin:0 0 7px 2px;
+}
+
+.input-group input{
+    width:100%;
+    height:44px;
+    padding:0 13px;
+    border:1px solid #dfe5ec;
+    border-radius:12px;
+    background:#fff;
+    color:var(--text);
+    font-size:14px;
+    outline:none;
+    transition:.2s ease;
+}
+
+.input-group input:hover{border-color:#cbd5e1}
+.input-group input:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(37,99,235,.09);
+}
+
+.input-group input[readonly]{color:#64748b;cursor:default}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Preview area */
+.preview-section{display:flex;flex-direction:column;gap:14px}
+
+.receipt-card{
+    background:var(--card);
+    padding:30px;
+    border:1px solid rgba(226,232,240,.95);
+    border-radius:var(--radius);
+    box-shadow:0 14px 40px rgba(15,23,42,.07);
+}
+
+.receipt-header{
+    text-align:center;
+    border-bottom:1px dashed #dbe2ea;
+    padding-bottom:18px;
+    margin-bottom:18px;
+}
+
+.receipt-header h1{
+    font-size:21px;
+    font-weight:800;
+    letter-spacing:-.6px;
+    color:#0f172a;
+    margin-bottom:3px;
+}
+
+.receipt-header p{
+    font-size:11px;
+    color:var(--muted);
+}
+
+.user-info{
+    background:var(--soft);
+    padding:13px 15px;
+    border:1px solid #edf1f5;
+    border-radius:13px;
+    margin-bottom:15px;
+    font-size:12px;
+    line-height:1.8;
+}
+
+.user-info div{display:flex;justify-content:space-between;gap:12px}
+.user-info strong{color:#0f172a;font-weight:700}
+
+.meta-info{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:18px;
+    padding-bottom:11px;
+    border-bottom:1px solid var(--line);
+}
+
+.receipt-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:18px;
+}
+
+.receipt-table th{
+    text-align:left;
+    font-size:10px;
+    font-weight:700;
+    color:#94a3b8;
+    padding:0 0 9px;
+    border-bottom:1px solid var(--line);
+}
+
+.receipt-table th:last-child{text-align:right}
+
+.receipt-table td{
+    padding:12px 0;
+    font-size:13px;
+    border-bottom:1px solid #f1f4f7;
+}
+
+.receipt-table td.amount{
+    text-align:right;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+.electricity-detail{
+    display:block;
+    margin-top:3px;
+    font-size:10px;
+    color:#94a3b8;
+}
+
+.total-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--blue-soft);
+    border:1px solid #dbeafe;
+    padding:15px 16px;
+    border-radius:13px;
+    color:var(--primary-dark);
+    font-weight:800;
+    font-size:15px;
+}
+
+.receipt-footer{
+    margin-top:20px;
+    text-align:center;
+    font-size:11px;
+    color:#94a3b8;
+}
+
+
+/* PWA install button */
+.install-btn{
+    display:none;
+    width:100%;
+    min-height:42px;
+    margin-top:10px;
+    border:1px solid #dbeafe;
+    border-radius:12px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+}
+.install-btn.show{display:flex;align-items:center;justify-content:center;gap:7px}
+
+/* Actions */
+.actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.btn{
+    min-height:44px;
+    border:0;
+    border-radius:12px;
+    padding:10px 14px;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    transition:.2s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+}
+
+.btn:active{transform:translateY(1px)}
+.btn-primary{
+    background:var(--primary);
+    color:#fff;
+    box-shadow:0 6px 16px rgba(37,99,235,.18);
+}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+
+.btn-secondary{
+    background:#fff;
+    color:#334155;
+    border:1px solid #dfe5ec;
+}
+.btn-secondary:hover{background:#f8fafc;border-color:#cbd5e1}
+
+/* Responsive */
+@media(max-width:850px){
+    body{padding:14px 10px}
+    .container{grid-template-columns:1fr;gap:16px}
+    .form-card{position:static;padding:20px}
+    .receipt-card{padding:22px}
+}
+
+@media(max-width:520px){
+    .grid-2{grid-template-columns:1fr}
+    .receipt-card{padding:18px}
+    .receipt-header h1{font-size:19px}
+    .actions{grid-template-columns:1fr 1fr}
+}
+
+/* Print */
+@media print{
+    body{background:#fff;padding:0}
+    .form-card,.actions{display:none!important}
+    .container{display:block;max-width:none}
+    .receipt-card{
+        box-shadow:none;
+        border:none;
+        border-radius:0;
+        padding:0;
+    }
+}
+</style>
+
+    <meta name="theme-color" content="#2563eb">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="House Rent">
+    <link rel="manifest" href="manifest.json">
+
+</head>
+<body>
+
+<div class="container">
+    <!-- Input Form -->
+    <div class="form-card">
+        <h2>তথ্য ইনপুট দিন</h2>
+        
+        <div class="input-group">
+            <label>তারিখ</label>
+            <input type="date" id="inputDate" class="focusable">
+        </div>
+
+        <div class="input-group">
+            <label>ঘর ভাড়া (টাকা)</label>
+            <input type="number" id="houseRent" class="focusable" oninput="calculateTotal()" onfocus="this.select()">
+        </div>
+
+        <div class="input-group">
+            <label>গ্যাস বিল (টাকা)</label>
+            <input type="number" id="gasBill" class="focusable" oninput="calculateTotal()" onfocus="this.select()">
+        </div>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>কারেন্ট (প্রতি ইউনিট)</label>
+                <input type="number" id="unitPrice" placeholder="0" class="focusable" oninput="calculateTotal()" onfocus="this.select()">
+            </div>
+            <div class="input-group">
+                <label>মোট ইউনিট</label>
+                <input type="number" id="totalUnit" placeholder="0" class="focusable" oninput="calculateTotal()" onfocus="this.select()">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>কারেন্ট বিল (মোট)</label>
+            <input type="number" id="elecBill" readonly style="background-color: #f1f5f9;">
+        </div>
+
+        <div class="input-group">
+            <label>ময়লা বিল (টাকা)</label>
+            <input type="number" id="wasteBill" class="focusable" oninput="calculateTotal()" onfocus="this.select()">
+        </div>
+    </div>
+
+    <!-- Receipt Preview Section -->
+    <div class="preview-section">
+        <div class="receipt-card" id="receipt">
+            <div class="receipt-header">
+                <h1>HOUSE RENT RECEIPT</h1>
+                <p>বাড়ির ভাড়ার রসিদ</p>
+            </div>
+
+            <!-- User Info Block (Name, Phone, Flat) -->
+            <div class="user-info">
+                <div><span>নাম:</span> <strong>Badol</strong></div>
+                <div><span>মোবাইল:</span> <strong>01878788571</strong></div>
+                <div><span>ফ্ল্যাট নং:</span> <strong>#B3</strong></div>
+            </div>
+
+            <div class="meta-info">
+                <span><strong>তারিখ:</strong> <span id="displayDate">--/--/----</span></span>
+            </div>
+
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>বিবরণ</th>
+                        <th style="text-align: right;">পরিমাণ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ঘর ভাড়া</td>
+                        <td class="amount" id="displayHouseRent">৳ 0</td>
+                    </tr>
+                    <tr>
+                        <td>গ্যাস বিল</td>
+                        <td class="amount" id="displayGasBill">৳ 0</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            কারেন্ট বিল
+                            <span class="electricity-detail" id="displayElecDetail">(0 unit × ৳ 0)</span>
+                        </td>
+                        <td class="amount" id="displayElecBill">৳ 0</td>
+                    </tr>
+                    <tr>
+                        <td>ময়লা বিল</td>
+                        <td class="amount" id="displayWasteBill">৳ 0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="total-row">
+                <span>সর্বমোট ভাড়া</span>
+                <span id="displayTotal">৳ 0</span>
+            </div>
+
+            <div class="receipt-footer">
+                <p>ধন্যবাদ!</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons at Bottom -->
+
+        <button id="installBtn" class="install-btn" type="button">＋ Add To Home Screen</button>
+
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+            <button class="btn btn-primary" onclick="downloadImage()">Save</button>
+        </div>
+        <div class="copyright">© 2026 Kamrul Hasan Badol. All Rights Reserved.</div>
+    </div>
+</div>
+
+<script>
+    // Set Default Today's Date
+    document.getElementById('inputDate').valueAsDate = new Date();
+    
+    function formatDate(dateString) {
+        if(!dateString) return '--/--/----';
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function calculateTotal() {
+        // Date
+        const dateVal = document.getElementById('inputDate').value;
+        document.getElementById('displayDate').innerText = formatDate(dateVal);
+
+        // Values
+        const houseRent = parseFloat(document.getElementById('houseRent').value) || 0;
+        const gasBill = parseFloat(document.getElementById('gasBill').value) || 0;
+        
+        const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
+        const totalUnit = parseFloat(document.getElementById('totalUnit').value) || 0;
+        
+        // Electricity Calculation
+        const elecBill = unitPrice * totalUnit;
+        document.getElementById('elecBill').value = elecBill;
+
+        const wasteBill = parseFloat(document.getElementById('wasteBill').value) || 0;
+
+        // Total Sum
+        const grandTotal = houseRent + gasBill + elecBill + wasteBill;
+
+        // Updating UI
+        document.getElementById('displayHouseRent').innerText = `৳ ${houseRent.toLocaleString()}`;
+        document.getElementById('displayGasBill').innerText = `৳ ${gasBill.toLocaleString()}`;
+        document.getElementById('displayElecBill').innerText = `৳ ${elecBill.toLocaleString()}`;
+        document.getElementById('displayElecDetail').innerText = `(${totalUnit} unit × ৳ ${unitPrice})`;
+        document.getElementById('displayWasteBill').innerText = `৳ ${wasteBill.toLocaleString()}`;
+        document.getElementById('displayTotal').innerText = `৳ ${grandTotal.toLocaleString()}`;
+    }
+
+    // Enter Key Navigation Script
+    const focusableInputs = document.querySelectorAll('.focusable');
+    focusableInputs.forEach((input, index) => {
+        input.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Default behavior বন্ধ রাখবে
+                const nextInput = focusableInputs[index + 1];
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        });
+    });
+
+    // High Quality Image Download Function
+    function downloadImage() {
+        const receipt = document.getElementById('receipt');
+        
+        html2canvas(receipt, {
+            scale: 3, // High DPI resolution (3x quality)
+            useCORS: true,
+            backgroundColor: "#ffffff"
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `House_Rent_Receipt_B3_${document.getElementById('inputDate').value}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        });
+    }
+
+    // Initialize calculation on load
+    calculateTotal();
+
+    // PWA service worker
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+        });
+    }
+
+
+    // PWA install prompt
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        installBtn.classList.add('show');
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        installBtn.classList.remove('show');
+    });
+
+    window.addEventListener('appinstalled', () => {
+        installBtn.classList.remove('show');
+        deferredInstallPrompt = null;
+    });
+
+</script>
+
+</body>
+</html>
